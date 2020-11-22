@@ -1,4 +1,2 @@
 /target
 Cargo.lock
-
-node*.rs
