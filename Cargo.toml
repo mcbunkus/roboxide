@@ -12,17 +12,6 @@ path = "src/lib/lib.rs"
 name = "rxcore"
 path = "src/core.rs"
 
-[[bin]]
-name = "node1"
-path = "src/node1.rs"
-
-[[bin]]
-name = "node2"
-path = "src/node2.rs"
-
-[[bin]]
-name = "node3"
-path = "src/node3.rs"
 
 [dependencies]
 zmq = "0.9"
