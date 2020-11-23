@@ -19,10 +19,9 @@ impl<T> Publisher<T>
 where
     T: Serialize + serde::de::DeserializeOwned + 'static,
 {
-    /// Create a new publisher with a topic. Returns a result with a publisher that's ready to go or an error.
-    pub fn new(topic: &'static str) -> Result<Publisher<T>, zmq::Error> {
+    fn init(topic: &'static str, endpoint: &'static str) -> Result<Publisher<T>, zmq::Error> {
         let context = zmq::Context::new();
-        let socket = super::create_and_connect_socket(&context, zmq::PUB, super::PUB_PROXY_EP)?;
+        let socket = super::create_and_connect_socket(&context, zmq::PUB, endpoint)?;
         let _phantom = std::marker::PhantomData;
 
         // Spawn a new thread to run the pubsub proxy, this works ok even if a proxy was already created by a different
@@ -34,6 +33,21 @@ where
             topic,
             _phantom,
         })
+    }
+
+    /// Create a new publisher with a topic. Returns a result with a publisher that's ready to go or an error. Connects
+    /// to the default endpoint for local connections
+    pub fn new(topic: &'static str) -> Result<Publisher<T>, zmq::Error> {
+        Publisher::init(topic, super::PUB_PROXY_EP)
+    }
+
+    /// Create a new publisher with a topic and a different endpoint. This is useful for connecting to other devices on
+    /// a local network
+    pub fn with_endpoint(
+        topic: &'static str,
+        endpoint: &'static str,
+    ) -> Result<Publisher<T>, zmq::Error> {
+        Publisher::init(topic, endpoint)
     }
 
     /// Takes a message and encodes it before sending it on the socket
@@ -64,15 +78,31 @@ impl<'a, T> Subscriber<T>
 where
     T: Serialize + serde::de::DeserializeOwned + 'static,
 {
-    pub fn new(topic: &'static str, callbackfn: fn(T)) -> Result<Subscriber<T>, zmq::Error> {
+    fn init(
+        topic: &'static str,
+        endpoint: &'static str,
+        callbackfn: fn(T),
+    ) -> Result<Subscriber<T>, zmq::Error> {
         let context = zmq::Context::new();
-        let socket = super::create_and_connect_socket(&context, zmq::SUB, super::SUB_PROXY_EP)?;
+        let socket = super::create_and_connect_socket(&context, zmq::SUB, endpoint)?;
         socket.set_subscribe((&topic).as_bytes())?;
         Ok(Subscriber {
             topic,
             callbackfn,
             socket,
         })
+    }
+
+    pub fn new(topic: &'static str, callbackfn: fn(T)) -> Result<Subscriber<T>, zmq::Error> {
+        Subscriber::init(topic, super::SUB_PROXY_EP, callbackfn)
+    }
+
+    pub fn with_endpoint(
+        topic: &'static str,
+        endpoint: &'static str,
+        callbackfn: fn(T),
+    ) -> Result<Subscriber<T>, zmq::Error> {
+        Subscriber::init(topic, endpoint, callbackfn)
     }
 
     // Spawn a thread that listens to the socket and calls the callback function on received messages. The receive
