@@ -13,10 +13,6 @@ serde = {version = "1.0.117", features = ["derive"]}
 name = "roboxide"
 path = "src/lib/lib.rs"
 
-[[bin]]
-name = "rxcore"
-path = "src/core.rs"
-
 [[example]]
 name = "publisher"
 path = "examples/publisher.rs"

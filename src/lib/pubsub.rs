@@ -25,6 +25,10 @@ where
         let socket = super::create_and_connect_socket(&context, zmq::PUB, super::PUB_PROXY_EP)?;
         let _phantom = std::marker::PhantomData;
 
+        // Spawn a new thread to run the pubsub proxy, this works ok even if a proxy was already created by a different
+        // node. This eliminates the need for something like roscore.
+        thread::spawn(|| super::start_pubsub_proxy());
+
         Ok(Publisher {
             socket,
             topic,

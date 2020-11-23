@@ -7,7 +7,6 @@ fn main() -> Result<(), zmq::Error> {
     let publisher = Publisher::<msgs::Message>::new("/hello/world")?;
 
     let mut counter: u128 = 0;
-    println!("Running publisher, make sure rxcore is running!");
     loop {
         println!("publishing data -> {}", counter);
         let data = msgs::Message { data: counter };

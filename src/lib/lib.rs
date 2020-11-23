@@ -1,3 +1,5 @@
+pub mod pubsub;
+
 pub const XPUB_PORT: &'static str = "10240";
 pub const XSUB_PORT: &'static str = "10241";
 
@@ -26,4 +28,14 @@ pub fn create_and_connect_socket(
     Ok(socket)
 }
 
-pub mod pubsub;
+pub fn start_pubsub_proxy() -> Result<(), zmq::Error> {
+    let frontend_endpoint: String = format!("tcp://*:{}", XSUB_PORT);
+    let backend_endpoint: String = format!("tcp://*:{}", XPUB_PORT);
+
+    let context = zmq::Context::new();
+    let frontend = create_and_bind_socket(&context, zmq::XSUB, frontend_endpoint.as_str())?;
+    let backend = create_and_bind_socket(&context, zmq::XPUB, backend_endpoint.as_str())?;
+
+    zmq::proxy(&frontend, &backend)?;
+    Ok(())
+}
