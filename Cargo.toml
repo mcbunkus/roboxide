@@ -3,6 +3,9 @@ name = "roboxide"
 version = "0.1.0"
 authors = ["Austen LeBeau austenlebeau@gmail.com"]
 edition = "2018"
+description = "A simple ROS-like library for robotics"
+repository = "https://github.com/AgentMacklin/roboxide"
+license = "MIT"
 
 [dependencies]
 zmq = "0.9"
