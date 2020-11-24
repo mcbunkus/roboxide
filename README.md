@@ -27,21 +27,15 @@ now. Hopefully in the future it will be, so `libzmq` won't have to be installed 
 ### Examples
 Pub/sub is the only messaging mechanism implemented at the moment. You can test it with with some nodes in `examples/`. 
 
-#### 1. Open a terminal and run `rxcore`, this is just a proxy socket that lets multiple publishers and subscribers talk over the same ports. 
-```bash
-cargo run --bin rxcore
-```
-
-#### 2. Open another terminal and run the publisher.
+#### 1. Open a terminal and run the publisher example.
 ```bash
 cargo run --example publisher
 ```
 
-#### 3. Open another terminal and run the subscriber.
+#### 2. Open another terminal and run the subscriber example.
 ```bash
 cargo run --example subscriber
 ```
 
-If all goes well, you should see the following.
-
-![pubsub_example](./docs/pubsub_example.png)
+#### 3. Profit
+The subscriber will begin receiving messages.
