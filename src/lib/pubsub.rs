@@ -1,4 +1,6 @@
-use serde::Serialize;
+#[allow(unused_imports)]
+use super::RxMessage;
+use serde::{Deserialize, Serialize};
 use std::thread;
 
 fn start_pubsub_proxy() -> Result<(), zmq::Error> {
@@ -17,7 +19,7 @@ fn start_pubsub_proxy() -> Result<(), zmq::Error> {
 /// sockets.
 pub struct Publisher<T>
 where
-    T: Serialize + serde::de::DeserializeOwned + 'static,
+    T: RxMessage,
 {
     socket: zmq::Socket,
     topic: &'static str,
@@ -29,7 +31,7 @@ where
 
 impl<T> Publisher<T>
 where
-    T: Serialize + serde::de::DeserializeOwned + 'static,
+    T: RxMessage,
 {
     fn init(topic: &'static str, endpoint: &'static str) -> Result<Publisher<T>, zmq::Error> {
         let context = zmq::Context::new();
@@ -79,7 +81,7 @@ where
 /// receives a message. The callback function is required to take the message as an argument.
 pub struct Subscriber<T>
 where
-    T: Serialize + serde::de::DeserializeOwned + 'static,
+    T: RxMessage,
 {
     topic: &'static str,
     callbackfn: fn(T),
@@ -145,7 +147,7 @@ where
 mod tests {
     use super::*;
 
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[derive(Serialize, Deserialize)]
     struct Dummy {
         data: u8,
     }

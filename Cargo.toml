@@ -8,10 +8,12 @@ edition = "2018"
 zmq = "0.9"
 bincode = "1.3.1"
 serde = {version = "1.0.117", features = ["derive"]}
+syn = "1.0.48"
 
 [lib]
 name = "roboxide"
 path = "src/lib/lib.rs"
+
 
 [[example]]
 name = "publisher"
