@@ -1,6 +1,18 @@
 use serde::Serialize;
 use std::thread;
 
+fn start_pubsub_proxy() -> Result<(), zmq::Error> {
+    let frontend_endpoint: String = format!("tcp://*:{}", super::XSUB_PORT);
+    let backend_endpoint: String = format!("tcp://*:{}", super::XPUB_PORT);
+
+    let context = zmq::Context::new();
+    let frontend = super::create_and_bind_socket(&context, zmq::XSUB, frontend_endpoint.as_str())?;
+    let backend = super::create_and_bind_socket(&context, zmq::XPUB, backend_endpoint.as_str())?;
+
+    zmq::proxy(&frontend, &backend)?;
+    Ok(())
+}
+
 /// Publisher can take any struct that implements serde's Serialize and Deserialize traits and publish them over ZMQ
 /// sockets.
 pub struct Publisher<T>
@@ -26,7 +38,7 @@ where
 
         // Spawn a new thread to run the pubsub proxy, this works ok even if a proxy was already created by a different
         // node. This eliminates the need for something like roscore.
-        thread::spawn(|| super::start_pubsub_proxy());
+        thread::spawn(start_pubsub_proxy);
 
         Ok(Publisher {
             socket,
