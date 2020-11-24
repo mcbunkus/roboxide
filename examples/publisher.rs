@@ -5,7 +5,6 @@ use roboxide::pubsub::Publisher;
 // but doing so allows you to use the ? operator on Results returned by roboxide functions.
 fn main() -> Result<(), zmq::Error> {
     let publisher = Publisher::<msgs::Message>::new("/hello/world")?;
-
     let mut counter: u128 = 0;
     loop {
         println!("publishing data -> {}", counter);

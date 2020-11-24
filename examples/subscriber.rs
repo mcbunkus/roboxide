@@ -9,7 +9,6 @@ fn callback(msg: msgs::Message) {
 
 fn main() -> Result<(), zmq::Error> {
     let subscriber = Subscriber::<msgs::Message>::new("/hello/world", callback)?;
-    println!("Running subscriber, make sure rxcore is running!");
 
     // subscriber.run() actually spawns a thread that listens to the topic and calls the callback function
     // when it gets a message. It returns the thread's handle, so you can use the thread handle directly...
