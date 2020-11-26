@@ -6,7 +6,7 @@ with message and service files, client libraries, etc. The main advantages of th
 
 #### Simpler Build Process
 Instead of using tools like catkin/colcon and cmake, you can use cargo to build your libraries/nodes. All it takes is a
-`[[bin]]` or `[[lib]]` entry in your `Cargo.toml`.
+`[[bin]]` entry in your `Cargo.toml`.
 
 #### Builtin Types
 You can use regular Rust structs as messages, instead of creating dedicated message and service files. The only
