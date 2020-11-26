@@ -1,5 +1,6 @@
+use super::socket;
 #[allow(unused_imports)]
-use super::RxMessage;
+use super::RbxMessage;
 use serde::{Deserialize, Serialize};
 use std::thread;
 
@@ -8,8 +9,8 @@ fn start_pubsub_proxy() -> Result<(), zmq::Error> {
     let backend_endpoint: String = format!("tcp://*:{}", super::XPUB_PORT);
 
     let context = zmq::Context::new();
-    let frontend = super::create_and_bind_socket(&context, zmq::XSUB, frontend_endpoint.as_str())?;
-    let backend = super::create_and_bind_socket(&context, zmq::XPUB, backend_endpoint.as_str())?;
+    let frontend = socket::create_and_bind_socket(&context, zmq::XSUB, frontend_endpoint.as_str())?;
+    let backend = socket::create_and_bind_socket(&context, zmq::XPUB, backend_endpoint.as_str())?;
 
     zmq::proxy(&frontend, &backend)?;
     Ok(())
@@ -19,7 +20,7 @@ fn start_pubsub_proxy() -> Result<(), zmq::Error> {
 /// sockets.
 pub struct Publisher<T>
 where
-    T: RxMessage,
+    T: RbxMessage,
 {
     socket: zmq::Socket,
     topic: &'static str,
@@ -31,11 +32,11 @@ where
 
 impl<T> Publisher<T>
 where
-    T: RxMessage,
+    T: RbxMessage,
 {
     fn init(topic: &'static str, endpoint: &'static str) -> Result<Publisher<T>, zmq::Error> {
         let context = zmq::Context::new();
-        let socket = super::create_and_connect_socket(&context, zmq::PUB, endpoint)?;
+        let socket = socket::create_and_connect_socket(&context, zmq::PUB, endpoint)?;
         let _phantom = std::marker::PhantomData;
 
         // Spawn a new thread to run the pubsub proxy, this works ok even if a proxy was already created by a different
@@ -81,16 +82,16 @@ where
 /// receives a message. The callback function is required to take the message as an argument.
 pub struct Subscriber<T>
 where
-    T: RxMessage,
+    T: RbxMessage,
 {
     topic: &'static str,
     callbackfn: fn(T),
     socket: zmq::Socket,
 }
 
-impl<'a, T> Subscriber<T>
+impl<T> Subscriber<T>
 where
-    T: Serialize + serde::de::DeserializeOwned + 'static,
+    T: RbxMessage,
 {
     fn init(
         topic: &'static str,
@@ -98,7 +99,7 @@ where
         callbackfn: fn(T),
     ) -> Result<Subscriber<T>, zmq::Error> {
         let context = zmq::Context::new();
-        let socket = super::create_and_connect_socket(&context, zmq::SUB, endpoint)?;
+        let socket = socket::create_and_connect_socket(&context, zmq::SUB, endpoint)?;
         socket.set_subscribe((&topic).as_bytes())?;
         Ok(Subscriber {
             topic,
